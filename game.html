@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Upload & Tag Race</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(180deg,#1e293b,#0f172a);
+color:white;
+text-align:center;
+}
+
+h2{
+margin-top:30px;
+}
+
+/* REMOVE OLD TIMER */
+
+#timer{
+display:none;
+}
+
+/* TIMER CIRCLE */
+
+.timer-wrapper{
+
+position:relative;
+width:110px;
+height:110px;
+margin:25px auto;
+
+display:flex;
+justify-content:center;
+align-items:center;
+
+}
+
+.timer-wrapper svg{
+
+position:absolute;
+top:0;
+left:0;
+transform:rotate(-90deg);
+
+}
+
+.timer-wrapper circle{
+
+fill:none;
+stroke-width:10;
+
+}
+
+#timerBg{
+stroke:#334155;
+}
+
+#timerBar{
+stroke:#22c55e;
+transition:stroke .3s;
+}
+
+#timerText{
+
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+
+font-size:28px;
+font-weight:bold;
+
+}
+
+/* GAME AREA */
+
+#gameArea{
+margin-top:35px;
+}
+
+/* FILE CARD */
+
+.file{
+
+background:#334155;
+padding:26px;
+margin:22px auto;
+width:65%;
+border-radius:12px;
+
+box-shadow:0 10px 25px rgba(0,0,0,0.3);
+
+transition:transform .2s;
+
+}
+
+.file:hover{
+transform:scale(1.02);
+}
+
+/* METADATA DROPDOWN */
+
+select{
+
+margin-top:12px;
+padding:10px 14px;
+
+background:#0f172a;
+color:white;
+
+border:1px solid #38bdf8;
+border-radius:8px;
+
+font-size:14px;
+cursor:pointer;
+
+box-shadow:0 0 8px rgba(56,189,248,0.25);
+
+transition:all .2s ease;
+
+}
+
+select:hover{
+border-color:#22c55e;
+box-shadow:0 0 12px rgba(34,197,94,0.4);
+}
+
+select:focus{
+outline:none;
+box-shadow:0 0 14px rgba(56,189,248,0.7);
+}
+
+/* ANSWER RESULT */
+
+.correct{
+background:#14532d;
+}
+
+.wrong{
+background:#7f1d1d;
+}
+
+/* BUTTON */
+
+button{
+padding:12px 24px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+}
+
+.next{
+background:#38bdf8
+}
+
+</style>
+</head>
+
+<body>
+
+<div style="height:4px;background:#38bdf8;width:100%;opacity:0.6;"></div>
+
+<h2>Upload & Tag Race</h2>
+
+<div style="color:#38bdf8;margin-bottom:10px;">
+AI tagging speed: 3 seconds ⚡
+</div>
+
+<div class="timer-wrapper">
+
+<svg width="110" height="110">
+
+<circle cx="55" cy="55" r="45" id="timerBg"></circle>
+
+<circle cx="55" cy="55" r="45"
+id="timerBar"
+stroke-dasharray="283"
+stroke-dashoffset="0">
+</circle>
+
+</svg>
+
+<div id="timerText">30</div>
+
+</div>
+
+<div id="gameArea"></div>
+
+<div id="result"></div>
+
+<audio id="clapSound" src="clap.wav"></audio>
+<audio id="failSound" src="fail.mp3"></audio>
+
+<script>
+
+let timeLeft=30;
+let score=0;
+let answered=0;
+let timer;
+
+const database=[
+{name:"Contract_Agreement.pdf",tag:"Legal"},
+{name:"Vendor_Invoice.xlsx",tag:"Finance"},
+{name:"Employee_Onboarding.docx",tag:"HR"},
+{name:"Audit_Report.pdf",tag:"Finance"},
+{name:"Employment_Contract.pdf",tag:"HR"}
+];
+
+function shuffle(a){
+return a.sort(()=>0.5-Math.random());
+}
+
+function getFileIcon(name){
+
+if(name.endsWith(".pdf")) return "📄";
+if(name.endsWith(".xlsx")) return "📊";
+if(name.endsWith(".docx")) return "📑";
+
+return "📁";
+
+}
+
+function startGame(){
+
+const files=shuffle([...database]).slice(0,3);
+
+files.forEach(file=>{
+
+let div=document.createElement("div");
+div.className="file";
+
+div.innerHTML=`<strong>${getFileIcon(file.name)} ${file.name}</strong><br>
+<select onchange="checkTag(this,'${file.tag}',this.parentElement)">
+<option value="">Choose Metadata Tag</option>
+<option value="Legal">🏛 Legal</option>
+<option value="Finance">💰 Finance</option>
+<option value="HR">👥 HR</option>
+</select>`;
+
+document.getElementById("gameArea").appendChild(div);
+
+});
+
+timer=setInterval(countdown,1000);
+
+}
+
+function checkTag(select,correct,row){
+
+if(select.disabled)return;
+
+select.disabled=true;
+
+answered++;
+
+if(select.value===correct){
+
+row.classList.add("correct");
+score++;
+
+}else{
+
+row.classList.add("wrong");
+
+}
+
+if(score===3){
+
+clearInterval(timer);
+
+setTimeout(()=>{
+window.location.href="win.html";
+},500);
+
+return;
+
+}
+
+if(answered===3 && score<3){
+lose();
+}
+
+}
+
+function lose(){
+
+clearInterval(timer);
+
+document.getElementById("failSound").play();
+
+document.getElementById("result").innerHTML=
+"<h2>❌ Not This Round</h2><p>AI was faster this time.</p><button class='next' onclick='gotoHome()'>Main Page</button>";
+
+}
+
+function gotoHome(){
+window.location.href="index.html";
+}
+
+const circumference = 283;
+
+function countdown(){
+
+timeLeft--;
+
+document.getElementById("timerText").innerText=timeLeft;
+
+let offset=circumference-(timeLeft/30)*circumference;
+
+document.getElementById("timerBar").style.strokeDashoffset=offset;
+
+/* last 5 seconds turn red */
+
+if(timeLeft<=5){
+
+document.getElementById("timerBar").style.stroke="#ef4444";
+
+}
+
+if(timeLeft<=0){
+
+clearInterval(timer);
+
+lose();
+
+}
+
+}
+
+startGame();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Claim Your Prize</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:
+radial-gradient(circle at center,rgba(56,189,248,.25),transparent 45%),
+linear-gradient(180deg,#1e293b,#0f172a);
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+text-align:center;
+}
+
+.card{
+
+background:#1e293b;
+padding:45px;
+border-radius:18px;
+box-shadow:0 0 35px rgba(59,130,246,.4);
+width:440px;
+
+}
+
+h2{
+font-size:34px;
+margin-bottom:5px;
+}
+
+.sub{
+font-size:18px;
+margin-bottom:25px;
+opacity:.9;
+}
+
+.qr{
+
+width:220px;
+margin:25px auto;
+display:block;
+background:white;
+padding:14px;
+border-radius:12px;
+
+box-shadow:
+0 0 20px rgba(59,130,246,.6),
+0 0 40px rgba(59,130,246,.4);
+
+}
+
+.claim{
+
+font-size:22px;
+margin-top:10px;
+margin-bottom:25px;
+font-weight:bold;
+
+}
+
+.buttons{
+
+display:flex;
+justify-content:center;
+gap:20px;
+
+}
+
+.btn{
+
+padding:14px 26px;
+font-size:18px;
+border:none;
+border-radius:10px;
+cursor:pointer;
+
+}
+
+.wheel{
+background:#f59e0b;
+margin-bottom:25px;
+font-size:20px;
+box-shadow:0 0 15px rgba(245,158,11,0.6);
+animation:pulseWheel 1.8s infinite;
+}
+
+@keyframes pulseWheel{
+
+0%{transform:scale(1)}
+50%{transform:scale(1.05)}
+100%{transform:scale(1)}
+
+}
+
+.next{
+background:#22c55e;
+}
+
+.home{
+background:#3b82f6;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+<h2>Scan & Follow Us</h2>
+
+<div class="sub">
+to unlock your prize 🎁
+</div>
+
+<img src="qr_linkedin.png" class="qr">
+
+<button class="btn wheel" onclick="openWheel()">
+Claim Your Prize 🎁
+</button>
+
+<div class="buttons">
+
+<button class="btn next" onclick="nextPlayer()">
+Next Player
+</button>
+
+<button class="btn home" onclick="goHome()">
+Home
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+function nextPlayer(){
+
+window.location.href="game.html";
+
+}
+
+function goHome(){
+
+window.location.href="index.html";
+
+}
+
+function openWheel(){
+
+window.location.href="wheel.html";
+
+}
+
+</script>
+
+</body>
+</html>
