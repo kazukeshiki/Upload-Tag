@@ -16,7 +16,6 @@ flex-direction:column;
 align-items:center;
 justify-content:center;
 height:100vh;
-overflow:hidden;
 }
 
 h1{
@@ -26,32 +25,24 @@ margin-bottom:25px;
 /* POINTER */
 
 .pointer{
-
 width:0;
 height:0;
-
 border-left:12px solid transparent;
 border-right:12px solid transparent;
 border-top:20px solid #f8fafc;
-
 position:absolute;
 top:-18px;
 left:50%;
-
 transform:translateX(-50%);
 z-index:10;
-
 transition:transform .08s;
-
-/* metallic shine */
 filter:
 drop-shadow(0 0 4px rgba(255,255,255,0.9))
 drop-shadow(0 2px 4px rgba(0,0,0,0.6));
-
 }
 
 .pointer.knock{
-transform:translateX(-50%) rotate(14deg) scale(1.05);
+transform:translateX(-50%) rotate(14deg);
 }
 
 /* WHEEL */
@@ -66,12 +57,10 @@ height:460px;
 border-radius:50%;
 border:14px solid #334155;
 position:relative;
-
 box-shadow:
 0 0 40px rgba(0,0,0,0.6),
 inset 0 0 40px rgba(0,0,0,0.4),
 0 0 20px rgba(56,189,248,0.5);
-
 }
 
 /* ICON */
@@ -83,7 +72,6 @@ left:50%;
 font-size:36px;
 transform-origin:center;
 pointer-events:none;
-transition:transform .3s;
 }
 
 /* WIN ICON */
@@ -92,11 +80,10 @@ transition:transform .3s;
 transform:scale(1.4);
 filter:
 drop-shadow(0 0 10px white)
-drop-shadow(0 0 25px #22c55e)
-drop-shadow(0 0 45px #22c55e);
+drop-shadow(0 0 25px #22c55e);
 }
 
-/* WIN GLOW */
+/* GLOW */
 
 .winGlow{
 position:absolute;
@@ -108,73 +95,52 @@ animation:glowPulse 1.2s ease-in-out infinite;
 }
 
 @keyframes glowPulse{
-
-0%{ box-shadow:0 0 0 rgba(34,197,94,0); }
-50%{ box-shadow:0 0 80px rgba(34,197,94,0.9); }
-100%{ box-shadow:0 0 0 rgba(34,197,94,0); }
-
+0%{box-shadow:0 0 0 rgba(34,197,94,0);}
+50%{box-shadow:0 0 80px rgba(34,197,94,0.9);}
+100%{box-shadow:0 0 0 rgba(34,197,94,0);}
 }
 
 /* BUTTON */
 
 .spinBtn{
-
 margin-top:30px;
 padding:14px 36px;
 font-size:18px;
-
 background:#38bdf8;
 border:none;
 border-radius:12px;
-
 cursor:pointer;
+}
 
-box-shadow:0 0 15px rgba(56,189,248,.5);
-
+.nextBtn{
+margin-top:20px;
+padding:14px 26px;
+font-size:16px;
+background:#22c55e;
+border:none;
+border-radius:10px;
+cursor:pointer;
+display:none;
 }
 
 /* RESULT */
 
 .result{
-
 margin-top:25px;
 font-size:30px;
 font-weight:bold;
-
 opacity:0;
 transform:scale(.6);
-
 }
 
 .result.show{
-
-animation:winText .8s ease forwards;
-
+animation:winText .8s forwards;
 }
 
 @keyframes winText{
-
 0%{opacity:0;transform:scale(.5);}
 60%{opacity:1;transform:scale(1.2);}
 100%{opacity:1;transform:scale(1);}
-
-}
-
-/* NEXT */
-
-.nextBtn{
-
-margin-top:20px;
-padding:14px 26px;
-font-size:16px;
-
-background:#22c55e;
-border:none;
-border-radius:10px;
-
-cursor:pointer;
-display:none;
-
 }
 
 </style>
@@ -195,7 +161,7 @@ display:none;
 
 <div id="result" class="result"></div>
 
-<button class="nextBtn" onclick="nextPlayer()">Next Player</button>
+<button class="nextBtn" onclick="goNext()">Next Player</button>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
@@ -203,51 +169,37 @@ display:none;
 
 /* AUDIO */
 
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+const audioCtx=new(window.AudioContext||window.webkitAudioContext)();
 
 function playTick(){
-
 const osc=audioCtx.createOscillator();
 const gain=audioCtx.createGain();
-
 osc.connect(gain);
 gain.connect(audioCtx.destination);
-
 osc.frequency.value=900;
-gain.gain.value=0.12;
-
+gain.gain.value=.12;
 osc.start();
 osc.stop(audioCtx.currentTime+.02);
-
 }
 
 function playDing(){
-
 const osc=audioCtx.createOscillator();
 const gain=audioCtx.createGain();
-
 osc.connect(gain);
 gain.connect(audioCtx.destination);
-
 osc.frequency.value=1400;
-gain.gain.value=0.25;
-
+gain.gain.value=.25;
 osc.start();
-
 osc.frequency.exponentialRampToValueAtTime(600,audioCtx.currentTime+.25);
-
 osc.stop(audioCtx.currentTime+.3);
-
 }
 
 /* PRIZES */
 
 const basePrizes=[
-
 {icon:"📓",name:"Notebook"},
 {icon:"🥤",name:"Shaker Bottle"},
 {icon:"🍬",name:"Candy"}
-
 ];
 
 let prizes=[];
@@ -255,6 +207,8 @@ let prizes=[];
 basePrizes.forEach(p=>{
 for(let i=0;i<3;i++)prizes.push({...p});
 });
+
+/* SETUP */
 
 const wheel=document.getElementById("wheel");
 const pointer=document.getElementById("pointer");
@@ -266,7 +220,7 @@ const segmentAngle=360/segments;
 
 const colors=["#38bdf8","#22c55e","#f59e0b"];
 
-/* BUILD WHEEL BACKGROUND */
+/* BUILD WHEEL */
 
 function buildWheel(){
 
@@ -312,14 +266,13 @@ wheel.appendChild(d);
 
 }
 
-/* SHUFFLE PRIZES */
+/* SHUFFLE */
 
-function shufflePrizes(){
+function shuffle(){
 
 for(let i=prizes.length-1;i>0;i--){
 
 let j=Math.floor(Math.random()*(i+1));
-
 [prizes[i],prizes[j]]=[prizes[j],prizes[i]];
 
 }
@@ -336,7 +289,6 @@ iconElements=[];
 prizes.forEach((p,i)=>{
 
 let icon=document.createElement("div");
-
 icon.className="segment";
 icon.innerText=p.icon;
 
@@ -357,7 +309,7 @@ iconElements.push(icon);
 
 }
 
-/* INITIALIZE */
+/* INIT */
 
 buildWheel();
 buildDividers();
@@ -374,34 +326,27 @@ function spinWheel(){
 
 if(spinning)return;
 
-shufflePrizes();
+shuffle();
 buildIcons();
 
 spinning=true;
 velocity=25;
 
-iconElements.forEach(i=>i.classList.remove("win"));
-
 document.getElementById("result").classList.remove("show");
-document.getElementById("result").innerText="";
 document.querySelector(".nextBtn").style.display="none";
 
-animateSpin();
+animate();
 
 }
 
-/* PHYSICS */
-
-function animateSpin(){
+function animate(){
 
 rotation+=velocity;
-
 velocity*=0.985;
 
 wheel.style.transform=`rotate(${rotation}deg)`;
 
 let deg=rotation%360;
-
 let segment=Math.floor((360-deg)/segmentAngle)%segments;
 
 if(segment!==lastSegment){
@@ -409,7 +354,6 @@ if(segment!==lastSegment){
 playTick();
 
 pointer.classList.add("knock");
-
 setTimeout(()=>pointer.classList.remove("knock"),80);
 
 lastSegment=segment;
@@ -418,11 +362,11 @@ lastSegment=segment;
 
 if(velocity>0.3){
 
-requestAnimationFrame(animateSpin);
+requestAnimationFrame(animate);
 
 }else{
 
-finishSpin();
+finish();
 
 }
 
@@ -430,59 +374,47 @@ finishSpin();
 
 /* FINISH */
 
-function finishSpin(){
+function finish(){
 
 spinning=false;
 
 let deg=rotation%360;
-
 let index=Math.floor((360-deg)/segmentAngle)%segments;
 
 let prize=prizes[index];
 
 iconElements[index].classList.add("win");
 
-/* glow */
-
-const glow=document.createElement("div");
+let glow=document.createElement("div");
 glow.className="winGlow";
-
 wheel.appendChild(glow);
 
-/* result */
+document.getElementById("result").innerText=
+"🏆 You won: "+prize.icon+" "+prize.name;
 
-const result=document.getElementById("result");
-
-result.innerText="🏆 You won: "+prize.icon+" "+prize.name;
-
-result.classList.add("show");
-
-/* sound */
+document.getElementById("result").classList.add("show");
 
 playDing();
 
-/* confetti */
-
 confetti({
-
 particleCount:260,
 spread:120,
-origin:{y:0.6}
-
+origin:{y:.6}
 });
 
 document.querySelector(".nextBtn").style.display="inline-block";
 
 }
 
-function nextPlayer(){
+/* NEXT PLAYER */
 
-window.location.href = "index.html";
+function goNext(){
+
+window.location.href="index.html";
 
 }
 
 </script>
 
 </body>
-
 </html>
